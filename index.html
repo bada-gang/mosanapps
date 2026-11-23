@@ -41,9 +41,9 @@
   .admin-link svg { width: 16px; height: 16px; }
 
   /* 히어로 */
-  .hero { position: relative; overflow: hidden; background: #fdfcfd url('assets/hero.jpg') left bottom / auto 100% no-repeat; border-bottom: 1px solid var(--line); }
-  .hero .wrap { display: grid; grid-template-columns: 1fr 1fr; align-items: center; min-height: 420px; padding-top: 40px; padding-bottom: 40px; }
-  .hero .text { grid-column: 2; }
+  .hero { display: grid; grid-template-columns: 1fr 1fr; min-height: 560px; background: #fefcfd; border-bottom: 1px solid var(--line); }
+  .hero .art { background: url('assets/hero-square.jpg') center / cover no-repeat; }
+  .hero .text { align-self: center; max-width: 580px; padding: 48px 40px 48px 56px; }
   .hero .eyebrow { display: inline-block; font-size: 13px; font-weight: 700; color: var(--primary); background: var(--primary-soft); padding: 6px 12px; border-radius: 999px; }
   .hero h1 { margin: 14px 0 10px; font-size: clamp(30px, 4.4vw, 46px); line-height: 1.2; letter-spacing: -.03em; font-weight: 800; }
   .hero h1 em { font-style: normal; color: var(--primary); }
@@ -80,9 +80,9 @@
   footer .wrap { padding-top: 24px; padding-bottom: 32px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
 
   @media (max-width: 760px) {
-    .hero { background-size: 160% auto; background-position: 0 0; }
-    .hero .wrap { grid-template-columns: 1fr; min-height: 0; padding-top: 62vw; padding-bottom: 32px; }
-    .hero .text { grid-column: 1; background: rgba(255,255,255,.9); border-radius: 18px; padding: 18px; }
+    .hero { grid-template-columns: 1fr; min-height: 0; }
+    .hero .art { height: auto; aspect-ratio: 1 / 1; }
+    .hero .text { padding: 24px 20px 32px; }
     .grid { --cols: repeat(auto-fill, minmax(240px, 1fr)) !important; }
   }
 </style>
@@ -97,12 +97,11 @@
   </header>
 
   <section class="hero">
-    <div class="wrap">
-      <div class="text">
-        <span class="eyebrow" id="eyebrow"></span>
-        <h1 id="heroTitle"></h1>
-        <p id="heroText"></p>
-      </div>
+    <div class="art" role="img" aria-label="작은 학교에서 넓은 세상을 바라보는 아이들 그림"></div>
+    <div class="text">
+      <span class="eyebrow" id="eyebrow"></span>
+      <h1 id="heroTitle"></h1>
+      <p id="heroText"></p>
     </div>
   </section>
 

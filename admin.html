@@ -58,6 +58,18 @@
   .bar .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding-top: 12px; padding-bottom: 12px; }
   details summary { cursor: pointer; font-weight: 700; color: var(--primary); }
   details ol { padding-left: 20px; color: var(--muted); font-size: 14px; }
+  /* 비밀번호 잠금 */
+  body.locked > :not(#gate) { display: none !important; }
+  #gate { display: none; min-height: 100vh; align-items: center; justify-content: center; padding: 20px; background: linear-gradient(120deg, #eaf2ff 0%, #f1fbf8 60%, #fff9e8 100%); }
+  body.locked #gate { display: flex; }
+  #gate form { width: 100%; max-width: 360px; background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 32px 28px; text-align: center; box-shadow: 0 8px 24px rgba(20,40,80,.08); }
+  #gate img { width: 64px; height: 64px; border-radius: 16px; }
+  #gate h1 { font-size: 20px; margin: 14px 0 4px; }
+  #gate p { margin: 0 0 18px; color: var(--muted); font-size: 14px; }
+  #gate input { text-align: center; font-size: 22px; letter-spacing: .4em; }
+  #gate button { width: 100%; justify-content: center; height: 44px; margin-top: 12px; }
+  #gate .msg { min-height: 20px; margin-top: 10px; font-size: 14px; color: var(--danger); }
+  #gate a { display: inline-block; margin-top: 14px; font-size: 14px; color: var(--muted); }
   @media (max-width: 720px) {
     .app { grid-template-columns: 28px 1fr; }
     .icon-box { display: none; }
@@ -66,7 +78,18 @@
   }
 </style>
 </head>
-<body>
+<body class="locked">
+<div id="gate">
+  <form id="gateForm" autocomplete="off">
+    <img src="assets/logo.png" alt="">
+    <h1>관리자 확인</h1>
+    <p>모산 교육자료 모음 관리자 비밀번호를 입력하세요.</p>
+    <input type="password" id="pin" inputmode="numeric" aria-label="비밀번호" autofocus>
+    <button class="primary" type="submit">들어가기</button>
+    <div class="msg" id="gateMsg"></div>
+    <a href="index.html">← 홈페이지로 돌아가기</a>
+  </form>
+</div>
 <header>
   <div class="wrap">
     <a class="brand" href="index.html"><img src="assets/logo.png" alt="">모산 교육자료 모음 <small>관리자</small></a>
@@ -297,7 +320,24 @@ ${apps.map(a => "  " + JSON.stringify(a)).join(",\n")}
   });
   $("list").addEventListener("dragend", () => { dragFrom = null; document.querySelectorAll(".app").forEach(x => x.classList.remove("dragging", "over")); });
 
-  load();
+  // ---------- 비밀번호 잠금 ----------
+  // 비밀번호는 원문 대신 SHA-256 값만 보관합니다. 비밀번호를 바꾸려면 sha256("mosan-admin:" + 새 비밀번호) 값으로 교체하세요.
+  const PIN_HASH = "c7bea0920c0a2c4516e83e719e3a1c017cfe3e92564f036b47c42d5daeab7245";
+  const UNLOCK_KEY = "mosan-admin-unlocked";
+  const sha256 = async s => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)))].map(b => b.toString(16).padStart(2, "0")).join("");
+  let loaded = false;
+  function unlock() {
+    document.body.classList.remove("locked");
+    try { sessionStorage.setItem(UNLOCK_KEY, PIN_HASH); } catch {}
+    if (!loaded) { loaded = true; load(); }
+  }
+  $("gateForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    if (await sha256("mosan-admin:" + $("pin").value.trim()) === PIN_HASH) unlock();
+    else { $("gateMsg").textContent = "비밀번호가 맞지 않습니다."; $("pin").value = ""; $("pin").focus(); }
+  });
+  let remembered = ""; try { remembered = sessionStorage.getItem(UNLOCK_KEY) || ""; } catch {}
+  if (remembered === PIN_HASH) unlock(); else $("pin").focus();
 </script>
 </body>
 </html>
