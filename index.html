@@ -36,7 +36,9 @@
   .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; letter-spacing: -.02em; }
   .brand img { width: 34px; height: 34px; border-radius: 10px; object-fit: cover; }
   .topbar .spacer { flex: 1; }
-  .topbar .count { font-size: 14px; color: var(--muted); }
+  .admin-link { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; font-size: 14px; font-weight: 600; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; background: var(--surface); transition: all .15s; }
+  .admin-link:hover { color: var(--primary); border-color: #c9d4e6; }
+  .admin-link svg { width: 16px; height: 16px; }
 
   /* 히어로 */
   .hero { position: relative; overflow: hidden; background: #fdfcfd url('assets/hero.jpg') left bottom / auto 100% no-repeat; border-bottom: 1px solid var(--line); }
@@ -59,7 +61,7 @@
   .chip[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: #fff; }
 
   /* 카드 */
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; padding-bottom: 56px; }
+  .grid { display: grid; grid-template-columns: var(--cols, repeat(auto-fill, minmax(240px, 1fr))); gap: 16px; padding-bottom: 56px; }
   .card { position: relative; display: flex; flex-direction: column; gap: 12px; padding: 20px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); transition: transform .15s, box-shadow .15s, border-color .15s; }
   a.card:hover { transform: translateY(-3px); border-color: #cfdcf5; box-shadow: 0 2px 4px rgba(20,40,80,.06), 0 16px 32px rgba(20,40,80,.10); }
   a.card:focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
@@ -72,8 +74,6 @@
   .tags { display: flex; flex-wrap: wrap; gap: 6px; }
   .tag { font-size: 12px; font-weight: 600; color: #3b4a63; background: #f0f3f8; padding: 4px 9px; border-radius: 8px; }
   .go { flex: none; display: inline-flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 700; color: var(--primary); }
-  .card.soon { opacity: .6; }
-  .card.soon .go { color: var(--muted); }
   .empty { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 48px 0; }
 
   footer { border-top: 1px solid var(--line); background: var(--surface); color: var(--muted); font-size: 14px; }
@@ -83,7 +83,7 @@
     .hero { background-size: 160% auto; background-position: 0 0; }
     .hero .wrap { grid-template-columns: 1fr; min-height: 0; padding-top: 62vw; padding-bottom: 32px; }
     .hero .text { grid-column: 1; background: rgba(255,255,255,.9); border-radius: 18px; padding: 18px; }
-    .topbar .count { display: none; }
+    .grid { --cols: repeat(auto-fill, minmax(240px, 1fr)) !important; }
   }
 </style>
 </head>
@@ -92,16 +92,16 @@
     <div class="wrap">
       <a class="brand" href="#"><img src="assets/logo.png" alt="">모산 교육자료 모음</a>
       <span class="spacer"></span>
-      <span class="count" id="count"></span>
+      <a class="admin-link" href="admin.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>관리자</a>
     </div>
   </header>
 
   <section class="hero">
     <div class="wrap">
       <div class="text">
-        <span class="eyebrow">2026 AI·디지털 활용 선도학교</span>
-        <h1>작은 학교,<br><em>더 큰 세상</em>을 보다</h1>
-        <p>모산초 선생님들이 AI로 직접 만든 수업·업무 도구를 한곳에 모았습니다.<br>카드를 누르면 바로 실행됩니다.</p>
+        <span class="eyebrow" id="eyebrow"></span>
+        <h1 id="heroTitle"></h1>
+        <p id="heroText"></p>
       </div>
     </div>
   </section>
@@ -120,13 +120,14 @@
   <footer>
     <div class="wrap">
       <span>강릉 모산초등학교 · 2026 AI·디지털 활용 선도학교</span>
-      <span>모산 교육자료 모음</span>
+      <span id="footCount">모산 교육자료 모음</span>
     </div>
   </footer>
 
 <script src="apps.js"></script>
 <script>
-  const APPS = window.APPS || [];
+  const SITE = window.SITE || {};
+  const APPS = (window.APPS || []).filter(a => a.url && a.visible !== false);
   const DEFAULT_ICON = "assets/app-default.png";
   const grid = document.getElementById("grid");
   const chips = document.getElementById("chips");
@@ -134,6 +135,15 @@
   let current = "전체";
 
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const rich = s => esc(s).replace(/\*([^*]+)\*/g, "<em>$1</em>").replace(/\n/g, "<br>");
+
+  // 상단 문구와 레이아웃
+  document.getElementById("eyebrow").textContent = SITE.eyebrow || "";
+  document.getElementById("eyebrow").hidden = !SITE.eyebrow;
+  document.getElementById("heroTitle").innerHTML = rich(SITE.heroTitle || "모산 교육자료 모음");
+  document.getElementById("heroText").innerHTML = rich(SITE.heroText || "");
+  if (+SITE.columns >= 1) grid.style.setProperty("--cols", `repeat(${+SITE.columns}, 1fr)`);
+  document.getElementById("footCount").textContent = `모산 교육자료 모음 · 앱 ${APPS.length}개`;
 
   const cats = ["전체", ...new Set(APPS.map(a => a.category).filter(Boolean))];
   chips.innerHTML = cats.map(c => `<button class="chip" type="button" aria-pressed="${c === current}">${esc(c)}</button>`).join("");
@@ -146,7 +156,6 @@
   q.addEventListener("input", render);
 
   function card(a) {
-    const ready = !!a.url;
     const external = /^https?:\/\//.test(a.url || "");
     const tags = (a.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join("");
     const inner = `
@@ -155,10 +164,8 @@
         <div><div class="cat">${esc(a.category)}</div><h3>${esc(a.title)}</h3></div>
       </div>
       <p>${esc(a.desc)}</p>
-      <div class="foot"><div class="tags">${tags}</div><span class="go">${ready ? "열기 →" : "준비 중"}</span></div>`;
-    return ready
-      ? `<a class="card" href="${esc(a.url)}" ${external ? 'target="_blank" rel="noopener"' : ""}>${inner}</a>`
-      : `<div class="card soon" aria-disabled="true">${inner}</div>`;
+      <div class="foot"><div class="tags">${tags}</div><span class="go">열기 →</span></div>`;
+    return `<a class="card" href="${esc(a.url)}" ${external ? 'target="_blank" rel="noopener"' : ""}>${inner}</a>`;
   }
 
   function render() {
@@ -167,7 +174,6 @@
       (current === "전체" || a.category === current) &&
       (!k || [a.title, a.desc, a.category, ...(a.tags || [])].join(" ").toLowerCase().includes(k)));
     grid.innerHTML = list.length ? list.map(card).join("") : `<div class="empty">찾는 앱이 없어요. 다른 검색어를 입력해 보세요.</div>`;
-    document.getElementById("count").textContent = `앱 ${APPS.filter(a => a.url).length}개 · 준비 중 ${APPS.filter(a => !a.url).length}개`;
   }
   render();
 </script>

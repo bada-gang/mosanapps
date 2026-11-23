@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>관리자 · 모산 교육자료 모음</title>
+<link rel="icon" href="assets/logo.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root { --bg:#f6f8fc; --surface:#fff; --text:#1b2333; --muted:#5f6b80; --line:#e4e9f2; --primary:#2f6feb; --primary-soft:#e8f0ff; --danger:#e5484d; --ok:#1f9d6b; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Pretendard Variable", Pretendard, -apple-system, "Malgun Gothic", sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+  a { color: inherit; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+  header { position: sticky; top: 0; z-index: 10; background: rgba(255,255,255,.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  header .wrap { display: flex; align-items: center; gap: 10px; height: 64px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; text-decoration: none; }
+  .brand img { width: 32px; height: 32px; border-radius: 9px; }
+  .brand small { font-weight: 600; color: var(--muted); font-size: 14px; }
+  .spacer { flex: 1; }
+  button, .btn { font: inherit; font-size: 14px; font-weight: 700; height: 38px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--text); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+  button:hover, .btn:hover { border-color: #c9d4e6; }
+  button.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+  button.primary:disabled { opacity: .5; cursor: default; }
+  button.ghost { border-color: transparent; background: transparent; color: var(--muted); padding: 0 8px; }
+  button.danger { color: var(--danger); }
+  section.box { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; margin: 20px 0; }
+  section.box h2 { margin: 0 0 4px; font-size: 18px; }
+  section.box > p.hint { margin: 0 0 16px; color: var(--muted); font-size: 14px; }
+  label.f { display: block; font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 12px; }
+  label.f span { display: block; margin-bottom: 4px; }
+  input[type=text], input[type=password], input[type=url], textarea, select { width: 100%; font: inherit; font-size: 15px; color: var(--text); padding: 9px 11px; border: 1px solid var(--line); border-radius: 10px; background: #fff; outline: none; }
+  input:focus, textarea:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+  textarea { resize: vertical; min-height: 44px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .status { font-size: 14px; color: var(--muted); }
+  .status.ok { color: var(--ok); } .status.err { color: var(--danger); }
+
+  /* 앱 목록 */
+  .app { display: grid; grid-template-columns: 28px 64px 1fr auto; gap: 14px; align-items: start; padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: #fff; margin-bottom: 10px; }
+  .app.dragging { opacity: .4; }
+  .app.over { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+  .app.hidden-app { background: #f8f9fb; }
+  .app.hidden-app .fields { opacity: .6; }
+  .handle { cursor: grab; color: #9aa6ba; display: flex; flex-direction: column; align-items: center; gap: 2px; padding-top: 18px; user-select: none; }
+  .handle button { height: 22px; width: 24px; padding: 0; justify-content: center; font-size: 11px; border-radius: 6px; }
+  .icon-box { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .icon-box img { width: 64px; height: 64px; border-radius: 16px; background: var(--primary-soft); object-fit: cover; }
+  .fields .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+  .fields .full { grid-column: 1 / -1; }
+  .fields label.f { margin-bottom: 8px; }
+  .side { display: flex; flex-direction: column; gap: 6px; align-items: stretch; }
+  .switch { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+  .num { font-size: 12px; font-weight: 800; color: var(--primary); }
+
+  .bar { position: sticky; bottom: 0; background: rgba(246,248,252,.95); backdrop-filter: blur(8px); border-top: 1px solid var(--line); }
+  .bar .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding-top: 12px; padding-bottom: 12px; }
+  details summary { cursor: pointer; font-weight: 700; color: var(--primary); }
+  details ol { padding-left: 20px; color: var(--muted); font-size: 14px; }
+  @media (max-width: 720px) {
+    .app { grid-template-columns: 28px 1fr; }
+    .icon-box { display: none; }
+    .side { grid-column: 2; flex-direction: row; flex-wrap: wrap; }
+    .fields .grid, .row2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <a class="brand" href="index.html"><img src="assets/logo.png" alt="">모산 교육자료 모음 <small>관리자</small></a>
+    <span class="spacer"></span>
+    <a class="btn" href="index.html" target="_blank" rel="noopener">홈페이지 보기 ↗</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="box" id="authBox">
+    <h2>GitHub 연결</h2>
+    <p class="hint">고친 내용을 홈페이지에 반영하려면 GitHub 토큰이 필요합니다. 토큰은 이 브라우저에만 저장되고 다른 곳으로 보내지 않습니다.</p>
+    <div class="row2">
+      <label class="f"><span>GitHub 토큰</span><input type="password" id="token" autocomplete="off" placeholder="github_pat_..."></label>
+      <label class="f"><span>저장소</span><input type="text" id="repo" value="bada-gang/mosanapps"></label>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <button id="saveToken">이 브라우저에 토큰 기억</button>
+      <button class="ghost" id="forgetToken">토큰 지우기</button>
+      <span class="status" id="authStatus"></span>
+    </div>
+    <details style="margin-top:12px">
+      <summary>토큰 만드는 방법</summary>
+      <ol>
+        <li>GitHub 로그인 → 오른쪽 위 프로필 → <b>Settings</b> → 맨 아래 <b>Developer settings</b></li>
+        <li><b>Personal access tokens → Fine-grained tokens → Generate new token</b></li>
+        <li>Repository access: <b>Only select repositories</b> → <b>mosanapps</b>만 선택</li>
+        <li>Permissions → Repository permissions → <b>Contents: Read and write</b></li>
+        <li>만들어진 토큰(github_pat_로 시작)을 위 칸에 붙여 넣기</li>
+      </ol>
+    </details>
+  </section>
+
+  <section class="box">
+    <h2>상단 문구와 레이아웃</h2>
+    <p class="hint">제목에서 <b>*별표*</b>로 감싼 글자는 파란색으로 강조되고, 줄을 바꾸면 홈페이지에서도 줄이 바뀝니다.</p>
+    <div class="row2">
+      <label class="f"><span>작은 머리말</span><input type="text" id="s_eyebrow"></label>
+      <label class="f"><span>한 줄에 놓을 카드 수</span>
+        <select id="s_columns"><option value="auto">자동(화면 너비에 맞춤)</option><option value="2">2개</option><option value="3">3개</option><option value="4">4개</option></select>
+      </label>
+    </div>
+    <div class="row2">
+      <label class="f"><span>큰 제목</span><textarea id="s_heroTitle" rows="2"></textarea></label>
+      <label class="f"><span>소개 문장</span><textarea id="s_heroText" rows="2"></textarea></label>
+    </div>
+  </section>
+
+  <section class="box">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <div style="flex:1"><h2>앱 목록</h2><p class="hint" style="margin:0">왼쪽 손잡이(⠿)를 끌거나 ▲▼ 버튼으로 순서를 바꿉니다. '표시'를 끄면 홈페이지에서 숨겨집니다.</p></div>
+      <button id="addApp">＋ 앱 추가</button>
+    </div>
+    <div id="list" style="margin-top:16px"></div>
+  </section>
+</main>
+
+<div class="bar">
+  <div class="wrap">
+    <button class="primary" id="publish">홈페이지에 저장</button>
+    <button id="download">apps.js 내려받기</button>
+    <button class="ghost" id="reload">다시 불러오기</button>
+    <span class="status" id="status"></span>
+  </div>
+</div>
+
+<datalist id="iconList">
+  <option value="assets/icons/checklist.png"><option value="assets/icons/clock.png"><option value="assets/icons/seat.png">
+  <option value="assets/icons/rocket.png"><option value="assets/icons/wordcloud.png"><option value="assets/icons/googoodan.png">
+  <option value="assets/icons/league.png"><option value="assets/app-default.png">
+</datalist>
+<datalist id="catList"></datalist>
+
+<script>
+  const DEFAULT_ICON = "assets/app-default.png";
+  const TOKEN_KEY = "mosan-admin-token", REPO_KEY = "mosan-admin-repo";
+  const $ = id => document.getElementById(id);
+  let SITE = {}, APPS = [], fileSha = null, dirty = false;
+
+  // ---------- 토큰 ----------
+  const store = {
+    get(k) { try { return localStorage.getItem(k) || ""; } catch { return ""; } },
+    set(k, v) { try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch {} }
+  };
+  $("token").value = store.get(TOKEN_KEY);
+  $("repo").value = store.get(REPO_KEY) || $("repo").value;
+  const authMsg = () => { const t = $("token").value.trim(); $("authStatus").textContent = t ? "토큰 입력됨" : "토큰이 없으면 저장 대신 내려받기만 할 수 있어요."; $("authStatus").className = "status" + (t ? " ok" : ""); };
+  authMsg();
+  $("token").addEventListener("input", authMsg);
+  $("saveToken").onclick = () => { store.set(TOKEN_KEY, $("token").value.trim()); store.set(REPO_KEY, $("repo").value.trim()); $("authStatus").textContent = "이 브라우저에 기억했습니다."; $("authStatus").className = "status ok"; };
+  $("forgetToken").onclick = () => { store.set(TOKEN_KEY, ""); $("token").value = ""; authMsg(); };
+
+  // ---------- GitHub ----------
+  const api = (path, opt = {}) => {
+    const headers = { "Accept": "application/vnd.github+json" };
+    const t = $("token").value.trim(); if (t) headers.Authorization = "Bearer " + t;
+    return fetch(`https://api.github.com/repos/${$("repo").value.trim()}/contents/${path}`, { ...opt, headers: { ...headers, ...(opt.headers || {}) } });
+  };
+  const b64decode = b => new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\n/g, "")), c => c.charCodeAt(0)));
+  const b64encode = s => { const bytes = new TextEncoder().encode(s); let bin = ""; bytes.forEach(b => bin += String.fromCharCode(b)); return btoa(bin); };
+  function parseAppsJs(src) { const w = {}; new Function("window", src)(w); return { site: w.SITE || {}, apps: w.APPS || [] }; }
+
+  async function load() {
+    setStatus("불러오는 중…");
+    try {
+      const r = await api("apps.js?ref=main&t=" + Date.now());
+      if (!r.ok) throw new Error("GitHub " + r.status);
+      const j = await r.json(); fileSha = j.sha;
+      ({ site: SITE, apps: APPS } = parseAppsJs(b64decode(j.content)));
+      setStatus("GitHub의 최신 내용을 불러왔습니다.", "ok");
+    } catch (e) {
+      // GitHub에 접속할 수 없으면 이 폴더의 apps.js를 사용
+      await new Promise(res => { const s = document.createElement("script"); s.src = "apps.js?t=" + Date.now(); s.onload = s.onerror = res; document.head.appendChild(s); });
+      SITE = window.SITE || {}; APPS = window.APPS || []; fileSha = null;
+      setStatus("GitHub에서 불러오지 못해 이 폴더의 apps.js를 열었습니다. (" + e.message + ")", "err");
+    }
+    APPS = APPS.map(a => ({ title: "", desc: "", url: "", category: "", tags: [], icon: "", visible: true, ...a }));
+    fillSite(); renderList(); dirty = false;
+  }
+
+  function buildFile() {
+    readSite();
+    const apps = APPS.map(a => ({ title: a.title.trim(), desc: a.desc.trim(), url: a.url.trim(), category: a.category.trim(), tags: a.tags, icon: a.icon.trim(), visible: a.visible !== false }));
+    return `/*
+  모산 교육자료 모음 - 사이트 설정과 앱 목록
+  관리자 페이지(admin.html)에서 수정하면 이 파일이 자동으로 바뀝니다. 직접 고쳐도 됩니다.
+
+  SITE.heroTitle : 상단 큰 제목. 줄바꿈은 \\n, *별표* 안의 글자는 파란색 강조
+  SITE.columns   : 한 줄에 놓을 카드 수 ("auto" 또는 2, 3, 4)
+  APPS[].visible : false면 홈페이지에 표시하지 않음
+  APPS[].url     : 비어 있으면 홈페이지에 표시하지 않음
+*/
+window.SITE = ${JSON.stringify(SITE, null, 2)};
+
+window.APPS = [
+${apps.map(a => "  " + JSON.stringify(a)).join(",\n")}
+];
+`;
+  }
+
+  $("publish").onclick = async () => {
+    if (!$("token").value.trim()) { setStatus("토큰이 필요합니다. 위 'GitHub 연결'에 토큰을 넣어 주세요.", "err"); $("token").focus(); return; }
+    const bad = APPS.find(a => a.visible !== false && (!a.title.trim() || !a.url.trim()));
+    if (bad && !confirm("이름이나 주소가 비어 있는 앱은 홈페이지에 표시되지 않습니다. 그래도 저장할까요?")) return;
+    $("publish").disabled = true; setStatus("저장하는 중…");
+    try {
+      if (!fileSha) { const r0 = await api("apps.js?ref=main"); if (r0.ok) fileSha = (await r0.json()).sha; }
+      const r = await api("apps.js", { method: "PUT", body: JSON.stringify({ message: "관리자 페이지에서 앱 목록 수정", content: b64encode(buildFile()), sha: fileSha, branch: "main" }) });
+      const j = await r.json();
+      if (!r.ok) throw new Error(r.status === 409 ? "다른 곳에서 먼저 수정되었습니다. '다시 불러오기' 후 다시 저장하세요." : r.status === 401 || r.status === 403 ? "토큰 권한을 확인하세요 (Contents: Read and write)." : (j.message || r.status));
+      fileSha = j.content.sha; dirty = false;
+      setStatus("저장했습니다. 1~2분 뒤 홈페이지에 반영됩니다.", "ok");
+    } catch (e) { setStatus("저장 실패: " + e.message, "err"); }
+    $("publish").disabled = false;
+  };
+  $("download").onclick = () => {
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([buildFile()], { type: "text/javascript" })); a.download = "apps.js"; a.click(); URL.revokeObjectURL(a.href);
+    setStatus("apps.js를 내려받았습니다. 홈페이지 폴더의 apps.js를 이 파일로 바꾸면 됩니다.", "ok");
+  };
+  $("reload").onclick = () => { if (!dirty || confirm("저장하지 않은 변경 내용이 사라집니다. 다시 불러올까요?")) load(); };
+  window.addEventListener("beforeunload", e => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
+  function setStatus(msg, kind = "") { $("status").textContent = msg; $("status").className = "status" + (kind ? " " + kind : ""); }
+
+  // ---------- 사이트 설정 ----------
+  const siteFields = ["eyebrow", "heroTitle", "heroText", "columns"];
+  function fillSite() { siteFields.forEach(k => $("s_" + k).value = SITE[k] ?? (k === "columns" ? "auto" : "")); }
+  function readSite() { siteFields.forEach(k => SITE[k] = $("s_" + k).value); }
+  siteFields.forEach(k => $("s_" + k).addEventListener("input", () => dirty = true));
+
+  // ---------- 앱 목록 ----------
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  function renderList() {
+    $("catList").innerHTML = [...new Set(APPS.map(a => a.category).filter(Boolean))].map(c => `<option value="${esc(c)}">`).join("");
+    $("list").innerHTML = APPS.map((a, i) => `
+      <div class="app ${a.visible === false ? "hidden-app" : ""}" draggable="true" data-i="${i}">
+        <div class="handle" title="끌어서 순서 바꾸기">⠿<span class="num">${i + 1}</span>
+          <button type="button" data-act="up" title="위로">▲</button><button type="button" data-act="down" title="아래로">▼</button></div>
+        <div class="icon-box"><img src="${esc(a.icon || DEFAULT_ICON)}" alt="" onerror="this.src='${DEFAULT_ICON}'"></div>
+        <div class="fields"><div class="grid">
+          <label class="f"><span>앱 이름</span><input type="text" data-k="title" value="${esc(a.title)}"></label>
+          <label class="f"><span>분류</span><input type="text" data-k="category" list="catList" value="${esc(a.category)}" placeholder="수업, 학급, 놀이…"></label>
+          <label class="f full"><span>설명</span><input type="text" data-k="desc" value="${esc(a.desc)}"></label>
+          <label class="f full"><span>주소</span><input type="url" data-k="url" value="${esc(a.url)}" placeholder="https://..."></label>
+          <label class="f"><span>꼬리표 (쉼표로 구분)</span><input type="text" data-k="tags" value="${esc((a.tags || []).join(", "))}"></label>
+          <label class="f"><span>아이콘 경로</span><input type="text" data-k="icon" list="iconList" value="${esc(a.icon)}" placeholder="${DEFAULT_ICON}"></label>
+        </div></div>
+        <div class="side">
+          <label class="switch"><input type="checkbox" data-k="visible" ${a.visible === false ? "" : "checked"}> 표시</label>
+          ${a.url ? `<a class="btn" href="${esc(a.url)}" target="_blank" rel="noopener">열어보기</a>` : ""}
+          <button type="button" class="danger" data-act="del">삭제</button>
+        </div>
+      </div>`).join("") || `<p class="hint">앱이 없습니다. '＋ 앱 추가'를 눌러 보세요.</p>`;
+  }
+  $("list").addEventListener("input", e => {
+    const row = e.target.closest(".app"), k = e.target.dataset.k; if (!row || !k) return;
+    const a = APPS[+row.dataset.i];
+    if (k === "visible") { a.visible = e.target.checked; row.classList.toggle("hidden-app", !a.visible); }
+    else if (k === "tags") a.tags = e.target.value.split(",").map(s => s.trim()).filter(Boolean);
+    else a[k] = e.target.value;
+    if (k === "icon") row.querySelector(".icon-box img").src = a.icon || DEFAULT_ICON;
+    dirty = true;
+  });
+  $("list").addEventListener("click", e => {
+    const b = e.target.closest("button[data-act]"); if (!b) return;
+    const i = +b.closest(".app").dataset.i, act = b.dataset.act;
+    if (act === "del") { if (!confirm(`'${APPS[i].title || "이름 없는 앱"}'을(를) 목록에서 삭제할까요?`)) return; APPS.splice(i, 1); }
+    if (act === "up" && i > 0) [APPS[i - 1], APPS[i]] = [APPS[i], APPS[i - 1]];
+    if (act === "down" && i < APPS.length - 1) [APPS[i + 1], APPS[i]] = [APPS[i], APPS[i + 1]];
+    dirty = true; renderList();
+  });
+  $("addApp").onclick = () => {
+    APPS.push({ title: "", desc: "", url: "", category: "", tags: [], icon: "", visible: true });
+    dirty = true; renderList();
+    const last = $("list").lastElementChild; last.scrollIntoView({ behavior: "smooth", block: "center" }); last.querySelector("input").focus();
+  };
+
+  // 끌어서 순서 바꾸기
+  let dragFrom = null;
+  $("list").addEventListener("dragstart", e => {
+    if (e.target.matches("input, textarea, a, button")) return e.preventDefault();
+    const row = e.target.closest(".app"); if (!row) return;
+    dragFrom = +row.dataset.i; row.classList.add("dragging"); e.dataTransfer.effectAllowed = "move";
+  });
+  $("list").addEventListener("dragover", e => { const row = e.target.closest(".app"); if (dragFrom === null || !row) return; e.preventDefault(); document.querySelectorAll(".app.over").forEach(x => x.classList.remove("over")); row.classList.add("over"); });
+  $("list").addEventListener("drop", e => {
+    const row = e.target.closest(".app"); if (dragFrom === null || !row) return; e.preventDefault();
+    const to = +row.dataset.i; const [m] = APPS.splice(dragFrom, 1); APPS.splice(to, 0, m); dragFrom = null; dirty = true; renderList();
+  });
+  $("list").addEventListener("dragend", () => { dragFrom = null; document.querySelectorAll(".app").forEach(x => x.classList.remove("dragging", "over")); });
+
+  load();
+</script>
+</body>
+</html>
