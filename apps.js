@@ -12,13 +12,11 @@
   icon     : 아이콘 이미지 경로 (없으면 기본 아이콘 사용)
 */
 window.APPS = [
-  { title: "앱 이름 1", desc: "앱에 대한 짧은 설명이 들어갑니다.", url: "", category: "수업", tags: ["전학년"], icon: "" },
-  { title: "앱 이름 2", desc: "앱에 대한 짧은 설명이 들어갑니다.", url: "", category: "수업", tags: ["3~4학년", "수학"], icon: "" },
-  { title: "앱 이름 3", desc: "앱에 대한 짧은 설명이 들어갑니다.", url: "", category: "수업", tags: ["5~6학년", "영어"], icon: "" },
-  { title: "앱 이름 4", desc: "앱에 대한 짧은 설명이 들어갑니다.", url: "", category: "평가", tags: ["퀴즈"], icon: "" },
-  { title: "앱 이름 5", desc: "앱에 대한 짧은 설명이 들어갑니다.", url: "", category: "평가", tags: ["형성평가"], icon: "" },
-  { title: "앱 이름 6", desc: "앱에 대한 짧은 설명이 들어갑니다.", url: "", category: "놀이", tags: ["언플러그드"], icon: "" },
-  { title: "앱 이름 7", desc: "앱에 대한 짧은 설명이 들어갑니다.", url: "", category: "업무", tags: ["교사용"], icon: "" },
-  { title: "앱 이름 8", desc: "앱에 대한 짧은 설명이 들어갑니다.", url: "", category: "업무", tags: ["교사용"], icon: "" },
-  { title: "앱 이름 9", desc: "앱에 대한 짧은 설명이 들어갑니다.", url: "", category: "학급", tags: ["타이머"], icon: "" },
+  { title: "체크리스트", desc: "오늘 할 일을 학생들이 직접 확인하고 체크할 수 있어요.", url: "https://bada-gang.github.io/checklist/", category: "학급", tags: ["전학년", "할 일"], icon: "assets/icons/checklist.png" },
+  { title: "시계 모형", desc: "2학년 '시각과 시간' 단원에서 쓰는 시계 모형이에요.", url: "https://bada-gang.github.io/clock/", category: "수업", tags: ["2학년", "수학"], icon: "assets/icons/clock.png" },
+  { title: "자리 배치", desc: "학급 자리를 바꿀 때 사용하세요.", url: "https://bada-gang.github.io/seat/%EC%9E%90%EB%A6%AC%EB%B0%94%EA%BE%B8%EA%B8%B0.html", category: "학급", tags: ["교사용"], icon: "assets/icons/seat.png" },
+  { title: "발표 로켓", desc: "번호를 뽑아 발표자를 정해요.", url: "https://bada-gang.github.io/randomnumber/", category: "학급", tags: ["번호 뽑기"], icon: "assets/icons/rocket.png" },
+  { title: "생각 구름", desc: "워드클라우드를 학생들과 함께 만들어 보세요.", url: "https://wordcloud-bada.netlify.app/", category: "수업", tags: ["워드클라우드", "의견 모으기"], icon: "assets/icons/wordcloud.png" },
+  { title: "구구 마을", desc: "구구단을 연습할 수 있는 힐링 게임이에요.", url: "https://googoodan3d.netlify.app/", category: "놀이", tags: ["2학년", "수학", "구구단"], icon: "assets/icons/googoodan.png" },
+  { title: "대진표", desc: "대진표가 필요할 때 사용해 보세요.", url: "https://bada-gang.github.io/league/%EB%8C%80%EC%A7%84%ED%91%9C.html", category: "학급", tags: ["경기", "학급 행사"], icon: "assets/icons/league.png" },
 ];
