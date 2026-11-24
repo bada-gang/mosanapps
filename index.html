@@ -85,6 +85,30 @@
   .divider { grid-column: 1 / -1; height: 1px; margin: 16px 0; background: var(--line); }
   .card.archived { background: #fbfcfe; box-shadow: none; }
 
+  /* 카드마다 QR 버튼 (링크 안에 버튼을 넣을 수 없어 카드 옆 형제로 겹쳐 둠) */
+  .cell { position: relative; display: flex; }
+  .cell > .card { flex: 1; }
+  .qr-btn { position: absolute; top: 14px; right: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 46px; height: 50px; padding: 0; font: inherit; color: var(--primary); background: var(--primary-soft); border: 1px solid #d3e0fb; border-radius: 12px; cursor: pointer; transition: all .15s; }
+  .qr-btn:hover, .qr-btn:focus-visible { color: #fff; background: var(--primary); border-color: var(--primary); outline: none; }
+  .qr-btn svg { width: 20px; height: 20px; }
+  .qr-btn span { font-size: 11px; font-weight: 800; line-height: 1; letter-spacing: .02em; }
+  .cell:hover .qr-btn { transform: translateY(-3px); }
+  .card .head { padding-right: 50px; }
+
+  /* QR 팝업 */
+  .qr-dialog { width: min(440px, calc(100vw - 32px)); padding: 0; border: 0; border-radius: 24px; box-shadow: 0 24px 64px rgba(20,40,80,.25); color: var(--text); }
+  .qr-dialog::backdrop { background: rgba(20, 30, 50, .55); backdrop-filter: blur(3px); }
+  .qr-box { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 28px 24px 24px; text-align: center; }
+  .qr-box .qr-head { display: flex; align-items: center; gap: 12px; }
+  .qr-box .qr-head img { width: 44px; height: 44px; border-radius: 12px; object-fit: cover; }
+  .qr-box h2 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
+  .qr-box canvas { width: min(340px, 72vw); height: auto; aspect-ratio: 1 / 1; image-rendering: pixelated; border: 1px solid var(--line); border-radius: 16px; }
+  .qr-box .qr-url { max-width: 100%; font-size: 13px; color: var(--muted); word-break: break-all; }
+  .qr-box .qr-actions { display: flex; gap: 8px; width: 100%; }
+  .qr-box .qr-actions > * { flex: 1; height: 46px; font: inherit; font-size: 15px; font-weight: 700; border-radius: 14px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+  .qr-box .primary { color: #fff; background: var(--primary); border: 0; }
+  .qr-box .ghost { color: var(--text); background: var(--surface); border: 1px solid var(--line); }
+
   footer { border-top: 1px solid var(--line); background: var(--surface); color: var(--muted); font-size: 14px; }
   footer .wrap { padding-top: 24px; padding-bottom: 32px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
 
@@ -133,10 +157,30 @@
     </div>
   </footer>
 
+  <dialog class="qr-dialog" id="qrDialog" aria-labelledby="qrTitle">
+    <div class="qr-box">
+      <div class="qr-head"><img id="qrIcon" alt=""><h2 id="qrTitle"></h2></div>
+      <canvas id="qrCanvas" aria-label="앱 QR 코드"></canvas>
+      <div class="qr-url" id="qrUrl"></div>
+      <div class="qr-actions">
+        <button class="ghost" type="button" id="qrSave">이미지 저장</button>
+        <button class="primary" type="button" id="qrClose">닫기</button>
+      </div>
+    </div>
+  </dialog>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="apps.js"></script>
 <script>
   const SITE = window.SITE || {};
-  const APPS = (window.APPS || []).filter(a => a.url && a.visible !== false);
+  if (typeof SITE.categoryOrder === "string") SITE.categoryOrder = SITE.categoryOrder.split(",").map(s => s.trim()).filter(Boolean);
+  // 정렬: 분류 순서(SITE.categoryOrder) → 같은 분류 안에서는 가나다순. 목록에 없는 분류는 그 뒤에.
+  const CAT_ORDER = SITE.categoryOrder || ["학급", "수업", "놀이", "상담"];
+  const catRank = c => { const i = CAT_ORDER.indexOf(c); return i < 0 ? CAT_ORDER.length : i; };
+  const APPS = (window.APPS || []).filter(a => a.url && a.visible !== false)
+    .sort((a, b) => catRank(a.category) - catRank(b.category) ||
+      String(a.category || "").localeCompare(String(b.category || ""), "ko") ||
+      String(a.title).localeCompare(String(b.title), "ko", { numeric: true }));
   const DEFAULT_ICON = "assets/app-default.png";
   // 이 분류의 앱은 '전체' 보기에서 구분선 아래에 따로 표시 (apps.js의 SITE.archiveCategories로 바꿀 수 있음)
   const ARCHIVE = SITE.archiveCategories || ["지난 홍보"];
@@ -175,8 +219,62 @@
       </div>
       <p>${esc(a.desc)}</p>
       <div class="foot"><div class="tags">${tags}</div><span class="go">열기 →</span></div>`;
-    return `<a class="card" href="${esc(a.url)}" target="_blank" rel="noopener">${inner}</a>`;
+    const qrIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 17h4v4h-4"/></svg>`;
+    return `<div class="cell"><a class="card" href="${esc(a.url)}" target="_blank" rel="noopener">${inner}</a>` +
+      `<button class="qr-btn" type="button" data-i="${APPS.indexOf(a)}" title="QR 코드 보기" aria-label="${esc(a.title)} QR 코드 보기">${qrIcon}<span>QR</span></button></div>`;
   }
+
+  // ── 앱별 QR 코드 ──
+  const dlg = document.getElementById("qrDialog");
+  const qrCanvas = document.getElementById("qrCanvas");
+  let qrApp = null;
+  const absUrl = u => new URL(u, location.href).href; // apps/… 같은 상대 주소도 전체 주소로
+
+  // QR(과 선택적으로 아래쪽 앱 이름)을 캔버스에 그림
+  function drawQR(canvas, url, label) {
+    const qr = qrcode(0, "M");
+    qr.addData(url); qr.make();
+    const n = qr.getModuleCount(), cell = Math.max(8, Math.ceil(720 / n)), quiet = cell * 4;
+    const size = n * cell + quiet * 2, labelH = label ? Math.round(size * .16) : 0;
+    canvas.width = size; canvas.height = size + labelH;
+    const g = canvas.getContext("2d");
+    g.fillStyle = "#fff"; g.fillRect(0, 0, canvas.width, canvas.height);
+    g.fillStyle = "#1b2333";
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++)
+      if (qr.isDark(r, c)) g.fillRect(quiet + c * cell, quiet + r * cell, cell, cell);
+    if (label) {
+      let fs = Math.round(labelH * .45);
+      g.textAlign = "center"; g.textBaseline = "middle";
+      do { g.font = `800 ${fs}px "Pretendard Variable", "Malgun Gothic", sans-serif`; } while (g.measureText(label).width > size - quiet * 2 && --fs > 10);
+      g.fillText(label, size / 2, size + labelH / 2 - quiet / 2);
+    }
+  }
+
+  function openQR(a) {
+    if (typeof qrcode !== "function") { alert("QR 코드 도구를 불러오지 못했어요. 인터넷 연결을 확인해 주세요."); return; }
+    qrApp = a;
+    const url = absUrl(a.url);
+    document.getElementById("qrTitle").textContent = a.title;
+    const ic = document.getElementById("qrIcon"); ic.src = a.icon || DEFAULT_ICON; ic.onerror = () => { ic.src = DEFAULT_ICON; };
+    document.getElementById("qrUrl").textContent = decodeURI(url);
+    drawQR(qrCanvas, url);
+    dlg.showModal();
+  }
+
+  grid.addEventListener("click", e => {
+    const b = e.target.closest(".qr-btn"); if (b) openQR(APPS[+b.dataset.i]);
+  });
+  document.getElementById("qrClose").onclick = () => dlg.close();
+  dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); }); // 바깥쪽 누르면 닫기
+  document.getElementById("qrSave").onclick = () => {
+    if (!qrApp) return;
+    const c = document.createElement("canvas");
+    drawQR(c, absUrl(qrApp.url), qrApp.title); // 저장 이미지에는 앱 이름을 함께 넣음
+    const link = document.createElement("a");
+    link.download = `${qrApp.title.replace(/[\\/:*?"<>|]/g, "")} QR.png`;
+    link.href = c.toDataURL("image/png");
+    link.click();
+  };
 
   function render() {
     const k = q.value.trim().toLowerCase();
