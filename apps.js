@@ -21,5 +21,8 @@ window.APPS = [
   { "title": "발표 로켓", "desc": "번호를 뽑아 발표자를 정해요.", "url": "https://bada-gang.github.io/randomnumber/", "category": "학급", "tags": ["번호 뽑기"], "icon": "assets/icons/rocket.png", "visible": true },
   { "title": "생각 구름", "desc": "워드클라우드를 학생들과 함께 만들어 보세요.", "url": "https://wordcloud-bada.netlify.app/", "category": "수업", "tags": ["워드클라우드", "의견 모으기"], "icon": "assets/icons/wordcloud.png", "visible": true },
   { "title": "구구 마을", "desc": "구구단을 연습할 수 있는 힐링 게임이에요.", "url": "https://googoodan3d.netlify.app/", "category": "놀이", "tags": ["2학년", "수학", "구구단"], "icon": "assets/icons/googoodan.png", "visible": true },
-  { "title": "대진표", "desc": "대진표가 필요할 때 사용해 보세요.", "url": "https://bada-gang.github.io/league/%EB%8C%80%EC%A7%84%ED%91%9C.html", "category": "학급", "tags": ["경기", "학급 행사"], "icon": "assets/icons/league.png", "visible": true }
+  { "title": "대진표", "desc": "대진표가 필요할 때 사용해 보세요.", "url": "https://bada-gang.github.io/league/%EB%8C%80%EC%A7%84%ED%91%9C.html", "category": "학급", "tags": ["경기", "학급 행사"], "icon": "assets/icons/league.png", "visible": true },
+  { "title": "호박고누 놀이", "desc": "", "url": "apps/hobakgonu.html", "category": "놀이", "tags": [], "icon": "", "visible": true },
+  { "title": "자리 바꾸기", "desc": "", "url": "https://switchseat.netlify.app/", "category": "학급", "tags": [], "icon": "", "visible": true },
+  { "title": "타자 연습", "desc": "", "url": "https://mosan-typing.vercel.app/", "category": "수업", "tags": [], "icon": "", "visible": true }
 ];
