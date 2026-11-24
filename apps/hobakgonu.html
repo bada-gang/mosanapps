@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>호박고누 놀이</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fbf3e4;
+    --paper: #fffaf0;
+    --ink: #3b2a1a;
+    --muted: #7a6450;
+    --line: #6b4a2b;
+    --board: #e9c98f;
+    --pumpkin: #f6b453;
+    --red: #d9443a;
+    --red-dark: #a82c24;
+    --red-home: #f7c9c2;
+    --blue: #2f6fd0;
+    --blue-dark: #1f4f9c;
+    --blue-home: #c6d8f6;
+    --hint: #3fae5a;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Gowun Dodum", "Malgun Gothic", sans-serif;
+    font-size: 18px;
+    /* 터치 기기: 두 번 탭 확대·글자 선택·길게 눌러 메뉴 뜨는 것 막기 */
+    touch-action: manipulation;
+    -webkit-user-select: none; user-select: none;
+    -webkit-touch-callout: none;
+    overscroll-behavior: none;
+  }
+  input { -webkit-user-select: text; user-select: text; }
+  button { touch-action: manipulation; }
+  /* 전자칠판처럼 큰 화면에서는 전체 글자를 키움 */
+  @media (min-width: 1500px) { body { font-size: 22px; } .wrap { max-width: 1400px; } }
+  h1, h2, h3, .btn, .turn, .name-tag { font-family: "Jua", "Malgun Gothic", sans-serif; font-weight: normal; }
+  .screen { display: none; min-height: 100%; padding: 24px 16px 40px; }
+  .screen.active { display: block; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  /* ---------- 첫 화면 ---------- */
+  .title { text-align: center; margin: 8px 0 24px; }
+  .title h1 { font-size: clamp(40px, 7vw, 64px); margin: 0; letter-spacing: 2px; }
+  .title p { margin: 6px 0 0; color: var(--muted); font-size: 20px; }
+  .intro-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+  @media (max-width: 820px) { .intro-grid { grid-template-columns: 1fr; } }
+  .card { background: var(--paper); border: 3px solid var(--line); border-radius: 20px; padding: 20px 22px; box-shadow: 0 6px 0 rgba(107,74,43,.25); }
+  .card h2 { margin: 0 0 12px; font-size: 28px; }
+  .rules { list-style: none; padding: 0; margin: 0; counter-reset: r; }
+  .rules li { counter-increment: r; position: relative; padding: 8px 0 8px 48px; line-height: 1.5; border-bottom: 1px dashed #d9c3a0; }
+  .rules li:last-child { border-bottom: 0; }
+  .rules li::before {
+    content: counter(r); position: absolute; left: 0; top: 8px;
+    width: 34px; height: 34px; border-radius: 50%; background: var(--line); color: #fff;
+    display: grid; place-items: center; font-family: "Jua", sans-serif; font-size: 20px;
+  }
+  .rules b { color: var(--red-dark); }
+  .mini-board { width: 100%; display: block; margin: 0 auto; }
+  .caption { text-align: center; color: var(--muted); margin: 8px 0 0; font-size: 16px; line-height: 1.5; }
+
+  .setup { margin-top: 24px; }
+  .players { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 560px) { .players { grid-template-columns: 1fr; } }
+  .player-input { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 14px; }
+  .player-input.red { background: #fde3df; }
+  .player-input.blue { background: #dfe9fb; }
+  .dot { width: 34px; height: 34px; border-radius: 50%; flex: none; box-shadow: inset 0 -4px 0 rgba(0,0,0,.2); }
+  .dot.red { background: var(--red); }
+  .dot.blue { background: var(--blue); }
+  .player-input input {
+    flex: 1; min-width: 0; font: inherit; font-size: 20px; padding: 10px 12px;
+    border: 2px solid #c9b08a; border-radius: 10px; background: #fff; color: var(--ink);
+  }
+  .first-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 16px; }
+  .first-row span { font-family: "Jua", sans-serif; font-size: 20px; margin-right: 4px; }
+  .chip { font: inherit; font-size: 18px; padding: 8px 16px; border-radius: 999px; border: 2px solid var(--line); background: #fff; color: var(--ink); cursor: pointer; }
+  .chip.on { background: var(--line); color: #fff; }
+
+  .btn {
+    font-size: 26px; padding: 14px 40px; border: 0; border-radius: 16px; cursor: pointer;
+    background: var(--hint); color: #fff; box-shadow: 0 6px 0 #2a7a3e; transition: transform .08s, box-shadow .08s;
+  }
+  .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #2a7a3e; }
+  .btn.secondary { background: #fff; color: var(--ink); border: 3px solid var(--line); box-shadow: 0 5px 0 rgba(107,74,43,.4); font-size: 20px; padding: 10px 22px; }
+  .btn.secondary:active { box-shadow: 0 1px 0 rgba(107,74,43,.4); }
+  .start-row { text-align: center; margin-top: 28px; }
+
+  /* ---------- 게임 화면 ---------- */
+  .game-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .game-top h1 { margin: 0; font-size: 34px; }
+  .game-top .tools { display: flex; gap: 10px; flex-wrap: wrap; }
+  .game-area { display: grid; grid-template-columns: 170px 1fr 170px; gap: 16px; align-items: center; margin-top: 16px; }
+  @media (max-width: 860px) {
+    .game-area { grid-template-columns: 1fr 1fr; }
+    .board-box { grid-column: 1 / -1; order: -1; }
+  }
+  .name-tag {
+    text-align: center; padding: 18px 10px; border-radius: 18px; border: 4px solid transparent;
+    background: var(--paper); transition: transform .2s, border-color .2s, box-shadow .2s; opacity: .55;
+  }
+  .name-tag .dot { width: 54px; height: 54px; margin: 0 auto 10px; }
+  .name-tag .nm { font-size: 28px; word-break: keep-all; }
+  .name-tag .sub { font-family: "Gowun Dodum", sans-serif; font-size: 16px; color: var(--muted); margin-top: 4px; }
+  .name-tag.active { opacity: 1; transform: scale(1.05); }
+  .name-tag.red.active { border-color: var(--red); box-shadow: 0 0 0 6px #fbd0ca; }
+  .name-tag.blue.active { border-color: var(--blue); box-shadow: 0 0 0 6px #cddcf8; }
+  .board-box { text-align: center; }
+  .turn { font-size: clamp(24px, 4vw, 34px); margin: 0 0 6px; min-height: 1.3em; }
+  .turn.red { color: var(--red-dark); }
+  .turn.blue { color: var(--blue-dark); }
+  .msg { min-height: 1.6em; font-size: 19px; color: var(--muted); margin: 0 0 8px; }
+  .msg.warn { color: #c0392b; font-weight: bold; }
+  #board { width: 100%; max-width: 1100px; max-height: calc(100vh - 230px); min-height: 260px; touch-action: manipulation; }
+  #game { padding-top: 14px; padding-bottom: 14px; }
+  .moves { color: var(--muted); font-size: 16px; margin-top: 4px; }
+
+  /* SVG 요소 */
+  .node-hit { cursor: pointer; }
+  .target { fill: var(--hint); opacity: .35; animation: pulse 1s ease-in-out infinite; pointer-events: none; }
+  @keyframes pulse { 50% { opacity: .75; } }
+  .piece { transition: transform .35s ease; cursor: pointer; }
+  .piece .sel { fill: none; stroke: #ffd23f; stroke-width: 8; opacity: 0; }
+  .piece.selected .sel { opacity: 1; }
+  .piece:active > circle:nth-child(3) { filter: brightness(1.15); }
+  .piece .halo { fill: none; stroke: #fff; stroke-width: 4; stroke-dasharray: 6 6; opacity: 0; }
+  .piece.movable .halo { opacity: 1; }
+  .piece.stuck { cursor: not-allowed; }
+
+  /* ---------- 결과 ---------- */
+  .overlay { position: fixed; inset: 0; background: rgba(40,25,10,.55); display: none; place-items: center; padding: 16px; z-index: 10; }
+  .overlay.show { display: grid; }
+  .result { background: var(--paper); border-radius: 24px; border: 4px solid var(--line); padding: 28px 24px; text-align: center; max-width: 480px; width: 100%; animation: pop .35s ease; }
+  @keyframes pop { from { transform: scale(.7); opacity: 0; } }
+  .result h2 { font-size: 44px; margin: 6px 0; }
+  .result p { font-size: 20px; margin: 8px 0 20px; }
+  .result .btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .trophy { font-size: 72px; line-height: 1; }
+  .confetti { position: fixed; top: -20px; width: 12px; height: 18px; z-index: 11; pointer-events: none; animation: fall linear forwards; }
+  @keyframes fall { to { transform: translateY(110vh) rotate(720deg); } }
+</style>
+</head>
+<body>
+
+<!-- ================= 첫 화면 : 규칙 ================= -->
+<section id="intro" class="screen active">
+  <div class="wrap">
+    <div class="title">
+      <h1>🎃 호박고누 놀이 🎃</h1>
+      <p>호박처럼 생긴 판 위에서 말을 움직여 상대를 가두는 우리 전통 놀이예요</p>
+    </div>
+
+    <div class="intro-grid">
+      <div class="card">
+        <h2>고누판 살펴보기</h2>
+        <svg id="miniBoard" class="mini-board" viewBox="0 0 760 460" aria-label="호박고누 판 그림"></svg>
+        <p class="caption">가운데 동그라미가 <b>호박</b>, 양쪽 끝 색칠된 곳이 각자의 <b>집</b>이에요.<br>점은 선으로 이어진 곳으로만 갈 수 있어요.</p>
+      </div>
+
+      <div class="card">
+        <h2>놀이 규칙</h2>
+        <ol class="rules">
+          <li>두 사람이 각자 말을 <b>3개씩</b> 자기 <b>집</b>에 놓고 시작해요. 빨강 집은 왼쪽, 파랑 집은 오른쪽이에요.</li>
+          <li>번갈아 가며 한 번에 <b>말 1개</b>를 <b>선을 따라 한 칸</b>, 비어 있는 점으로 옮겨요.</li>
+          <li>호박(동그라미) 안에서는 선을 따라 <b>앞으로도 뒤로도</b> 자유롭게 움직일 수 있어요.</li>
+          <li>집을 나온 말은 <b>다시 자기 집이나 상대 집에 들어갈 수 없어요.</b></li>
+          <li>내 차례인데 <b>움직일 말이 하나도 없으면 져요!</b> 상대 말을 꼼짝 못 하게 가두면 이겨요.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="card setup">
+      <h2>누가 놀이할까요?</h2>
+      <div class="players">
+        <label class="player-input red"><span class="dot red"></span><input id="nameRed" maxlength="8" placeholder="빨강 친구 이름"></label>
+        <label class="player-input blue"><span class="dot blue"></span><input id="nameBlue" maxlength="8" placeholder="파랑 친구 이름"></label>
+      </div>
+      <div class="first-row">
+        <span>누가 먼저 할까요?</span>
+        <button class="chip on" data-first="red">빨강 먼저</button>
+        <button class="chip" data-first="blue">파랑 먼저</button>
+        <button class="chip" data-first="random">🎲 무작위</button>
+      </div>
+    </div>
+
+    <div class="start-row">
+      <button id="startBtn" class="btn">▶ 시작하기</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 게임 화면 ================= -->
+<section id="game" class="screen">
+  <div class="wrap">
+    <div class="game-top">
+      <h1>🎃 호박고누</h1>
+      <div class="tools">
+        <button id="fullBtn" class="btn secondary">⛶ 전체 화면</button>
+        <button id="drawBtn" class="btn secondary">🤝 무승부</button>
+        <button id="restartBtn" class="btn secondary">↺ 다시 하기</button>
+        <button id="rulesBtn" class="btn secondary">📖 규칙 보기</button>
+      </div>
+    </div>
+
+    <div class="game-area">
+      <div id="tagRed" class="name-tag red">
+        <div class="dot red"></div>
+        <div class="nm" id="tagRedName">빨강</div>
+        <div class="sub">빨강 말 · 왼쪽 집</div>
+      </div>
+
+      <div class="board-box">
+        <p id="turn" class="turn"></p>
+        <p id="msg" class="msg"></p>
+        <svg id="board" viewBox="0 0 760 460" aria-label="고누판">
+          <g id="boardBg"></g>
+          <g id="nodes"></g>
+          <g id="targets"></g>
+          <g id="pieces"></g>
+        </svg>
+        <div class="moves" id="moves"></div>
+      </div>
+
+      <div id="tagBlue" class="name-tag blue">
+        <div class="dot blue"></div>
+        <div class="nm" id="tagBlueName">파랑</div>
+        <div class="sub">파랑 말 · 오른쪽 집</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 결과 ================= -->
+<div id="overlay" class="overlay">
+  <div class="result">
+    <div class="trophy" id="resIcon">🏆</div>
+    <h2 id="resTitle"></h2>
+    <p id="resText"></p>
+    <div class="btns">
+      <button id="againBtn" class="btn">한 판 더!</button>
+      <button id="homeBtn" class="btn secondary">처음으로</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 확인 창 (터치용) ================= -->
+<div id="askBox" class="overlay">
+  <div class="result">
+    <div class="trophy">🤔</div>
+    <p id="askText" style="font-size:26px;font-family:Jua,sans-serif"></p>
+    <div class="btns">
+      <button id="askYes" class="btn">네</button>
+      <button id="askNo" class="btn secondary">아니요</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 점 번호: 0 가운데, 1 호박 왼쪽, 2 호박 오른쪽, 3 호박 위, 4 호박 아래
+  //          5~7 빨강 집(왼쪽), 8~10 파랑 집(오른쪽)
+  const POS = [
+    [380, 230], [230, 230], [530, 230], [380, 80], [380, 380],
+    [95, 115], [70, 230], [95, 345],
+    [665, 115], [690, 230], [665, 345]
+  ];
+  const ADJ = {
+    0: [1, 2, 3, 4],
+    1: [0, 3, 4, 5, 6, 7],
+    2: [0, 3, 4, 8, 9, 10],
+    3: [0, 1, 2],
+    4: [0, 1, 2],
+    5: [1], 6: [1], 7: [1],
+    8: [2], 9: [2], 10: [2]
+  };
+  const IN_PUMPKIN = i => i <= 4;
+  const START = [null, null, null, null, null, 'red', 'red', 'red', 'blue', 'blue', 'blue'];
+  const COLOR = { red: 'var(--red)', blue: 'var(--blue)' };
+  const SVGNS = 'http://www.w3.org/2000/svg';
+
+  const state = { board: [], turn: 'red', selected: null, moveCount: 0, over: false, names: { red: '빨강', blue: '파랑' }, firstPref: 'red' };
+  const $ = id => document.getElementById(id);
+  const other = p => (p === 'red' ? 'blue' : 'red');
+
+  // 집 안의 점으로는 아무도 들어갈 수 없음 (집을 나온 말은 돌아가지 못함)
+  const targetsFrom = (board, i) => ADJ[i].filter(j => IN_PUMPKIN(j) && board[j] === null);
+
+  function movesOf(board, player) {
+    const list = [];
+    board.forEach((p, i) => { if (p === player) targetsFrom(board, i).forEach(j => list.push([i, j])); });
+    return list;
+  }
+
+  function boardMarkup() {
+    const [cx, cy] = POS[0];
+    const line = (a, b) => `<line x1="${POS[a][0]}" y1="${POS[a][1]}" x2="${POS[b][0]}" y2="${POS[b][1]}"/>`;
+    return `
+      <rect x="6" y="6" width="748" height="448" rx="28" fill="var(--board)"/>
+      <path d="M 150 30 Q 30 230 150 430 L 20 430 L 20 30 Z" fill="var(--red-home)"/>
+      <path d="M 610 30 Q 730 230 610 430 L 740 430 L 740 30 Z" fill="var(--blue-home)"/>
+      <text x="36" y="420" font-family="Jua, sans-serif" font-size="24" fill="var(--red-dark)">빨강 집</text>
+      <text x="724" y="420" text-anchor="end" font-family="Jua, sans-serif" font-size="24" fill="var(--blue-dark)">파랑 집</text>
+      <path d="M 372 74 q -6 -36 22 -52" fill="none" stroke="#5a8a2e" stroke-width="10" stroke-linecap="round"/>
+      <circle cx="${cx}" cy="${cy}" r="150" fill="var(--pumpkin)" stroke="var(--line)" stroke-width="9"/>
+      <g stroke="var(--line)" stroke-width="9" stroke-linecap="round">
+        ${line(1, 2)}${line(3, 4)}
+        ${line(1, 5)}${line(1, 6)}${line(1, 7)}
+        ${line(2, 8)}${line(2, 9)}${line(2, 10)}
+      </g>
+      ${POS.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="13" fill="var(--line)"/>`).join('')}`;
+  }
+
+  function pieceMarkup(p) {
+    return `
+      <circle class="sel" r="44" fill="none"/>
+      <circle r="34" fill="rgba(0,0,0,.22)" cy="5"/>
+      <circle r="34" fill="${COLOR[p]}"/>
+      <circle r="22" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="4"/>
+      <circle class="halo" r="39" fill="none"/>`;
+  }
+
+  function buildBoard() {
+    $('boardBg').innerHTML = boardMarkup();
+    $('miniBoard').innerHTML = boardMarkup() + START.map((p, i) =>
+      p ? `<g transform="translate(${POS[i][0]} ${POS[i][1]})">${pieceMarkup(p)}</g>` : '').join('');
+    const nodes = $('nodes');
+    POS.forEach(([x, y], i) => {
+      const hit = document.createElementNS(SVGNS, 'circle');
+      hit.setAttribute('cx', x); hit.setAttribute('cy', y); hit.setAttribute('r', 48);
+      hit.setAttribute('fill', 'transparent');
+      hit.classList.add('node-hit');
+      hit.addEventListener('click', () => onNode(i));
+      nodes.appendChild(hit);
+    });
+  }
+
+  function render() {
+    const piecesG = $('pieces');
+    piecesG.innerHTML = '';
+    state.board.forEach((p, i) => {
+      if (!p) return;
+      const g = document.createElementNS(SVGNS, 'g');
+      g.classList.add('piece');
+      g.dataset.node = i;
+      g.style.transform = `translate(${POS[i][0]}px, ${POS[i][1]}px)`;
+      g.innerHTML = pieceMarkup(p);
+      if (!state.over && p === state.turn) {
+        g.classList.add(targetsFrom(state.board, i).length ? 'movable' : 'stuck');
+      }
+      if (state.selected === i) g.classList.add('selected');
+      g.addEventListener('click', e => { e.stopPropagation(); onNode(i); });
+      piecesG.appendChild(g);
+    });
+
+    const targets = $('targets');
+    targets.innerHTML = '';
+    if (state.selected !== null) {
+      targetsFrom(state.board, state.selected).forEach(j => {
+        const c = document.createElementNS(SVGNS, 'circle');
+        c.setAttribute('cx', POS[j][0]); c.setAttribute('cy', POS[j][1]); c.setAttribute('r', 32);
+        c.classList.add('target');
+        targets.appendChild(c);
+      });
+    }
+
+    const t = $('turn');
+    t.className = 'turn ' + state.turn;
+    t.textContent = state.over ? '놀이 끝!' : `${state.names[state.turn]} 차례예요`;
+    $('tagRed').classList.toggle('active', !state.over && state.turn === 'red');
+    $('tagBlue').classList.toggle('active', !state.over && state.turn === 'blue');
+    $('moves').textContent = `지금까지 움직인 횟수: ${state.moveCount}번`;
+  }
+
+  function setMsg(text, warn) {
+    const m = $('msg');
+    m.textContent = text;
+    m.classList.toggle('warn', !!warn);
+  }
+
+  function onNode(i) {
+    if (state.over) return;
+    const p = state.board[i];
+    if (p === state.turn) {
+      if (!targetsFrom(state.board, i).length) {
+        setMsg('이 말은 지금 움직일 수 없어요. 다른 말을 골라 보세요.', true);
+        state.selected = null;
+      } else {
+        state.selected = state.selected === i ? null : i;
+        setMsg(state.selected === null ? '움직일 말을 골라 주세요.' : '초록색으로 반짝이는 곳을 눌러 옮기세요.');
+      }
+      render();
+      return;
+    }
+    if (p === null && state.selected !== null) {
+      if (targetsFrom(state.board, state.selected).includes(i)) {
+        move(state.selected, i);
+      } else if (!IN_PUMPKIN(i)) {
+        setMsg('집을 나온 말은 다시 집에 들어갈 수 없어요!', true);
+      } else {
+        setMsg('선을 따라 한 칸만 갈 수 있어요!', true);
+      }
+      return;
+    }
+    if (p && p !== state.turn) setMsg(`${state.names[state.turn]}의 말을 골라 주세요.`, true);
+  }
+
+  function move(from, to) {
+    // 말이 미끄러지듯 이동하도록 기존 요소를 먼저 옮긴 뒤 다시 그림
+    const el = $('pieces').querySelector(`[data-node="${from}"]`);
+    if (el) el.style.transform = `translate(${POS[to][0]}px, ${POS[to][1]}px)`;
+    state.board[to] = state.board[from];
+    state.board[from] = null;
+    state.selected = null;
+    state.moveCount++;
+    const mover = state.turn;
+    state.turn = other(mover);
+    setTimeout(() => {
+      if (movesOf(state.board, state.turn).length === 0) {
+        state.over = true;
+        render();
+        setMsg(`${state.names[state.turn]}의 말이 꼼짝 못 해요!`);
+        setTimeout(() => showWin(mover), 500);
+      } else {
+        render();
+        setMsg('움직일 말을 골라 주세요.');
+      }
+    }, 360);
+  }
+
+  function showWin(winner) {
+    $('resIcon').textContent = '🏆';
+    $('resTitle').textContent = `${state.names[winner]} 승리!`;
+    $('resTitle').style.color = winner === 'red' ? 'var(--red-dark)' : 'var(--blue-dark)';
+    $('resText').textContent = `${state.names[other(winner)]}의 말을 모두 가뒀어요. (${state.moveCount}번 만에)`;
+    $('overlay').classList.add('show');
+    confetti();
+  }
+
+  function showDraw() {
+    if (state.over) return;
+    state.over = true;
+    render();
+    $('resIcon').textContent = '🤝';
+    $('resTitle').textContent = '무승부!';
+    $('resTitle').style.color = 'var(--ink)';
+    $('resText').textContent = '둘 다 정말 잘했어요. 서로 칭찬해 줄까요?';
+    $('overlay').classList.add('show');
+  }
+
+  function confetti() {
+    const colors = ['#d9443a', '#2f6fd0', '#ffd23f', '#3fae5a', '#f6b453'];
+    for (let k = 0; k < 70; k++) {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.background = colors[k % colors.length];
+      c.style.animationDuration = 2 + Math.random() * 2 + 's';
+      c.style.animationDelay = Math.random() * .6 + 's';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 5000);
+    }
+  }
+
+  function newGame() {
+    state.board = START.slice();
+    state.selected = null;
+    state.moveCount = 0;
+    state.over = false;
+    state.turn = state.firstPref === 'random' ? (Math.random() < .5 ? 'red' : 'blue') : state.firstPref;
+    $('overlay').classList.remove('show');
+    render();
+    setMsg(`${state.names[state.turn]}부터 시작! 집에 있는 말을 골라 호박으로 나가 보세요.`);
+  }
+
+  function show(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
+    window.scrollTo(0, 0);
+  }
+
+  document.querySelectorAll('.chip').forEach(ch => ch.addEventListener('click', () => {
+    document.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === ch));
+    state.firstPref = ch.dataset.first;
+  }));
+
+  $('startBtn').addEventListener('click', () => {
+    state.names.red = $('nameRed').value.trim() || '빨강';
+    state.names.blue = $('nameBlue').value.trim() || '파랑';
+    $('tagRedName').textContent = state.names.red;
+    $('tagBlueName').textContent = state.names.blue;
+    show('game');
+    newGame();
+  });
+  // 브라우저 confirm 창은 전자칠판·패드에서 작고 누르기 어려워 화면 안의 큰 창으로 대신함
+  let askAction = null;
+  function ask(text, action) {
+    askAction = action;
+    $('askText').textContent = text;
+    $('askBox').classList.add('show');
+  }
+  $('askYes').addEventListener('click', () => { $('askBox').classList.remove('show'); if (askAction) askAction(); });
+  $('askNo').addEventListener('click', () => $('askBox').classList.remove('show'));
+
+  function toggleFullscreen() {
+    const d = document, el = d.documentElement;
+    const isFull = d.fullscreenElement || d.webkitFullscreenElement;
+    if (isFull) (d.exitFullscreen || d.webkitExitFullscreen).call(d);
+    else if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+  }
+  $('fullBtn').addEventListener('click', toggleFullscreen);
+
+  $('restartBtn').addEventListener('click', () => {
+    if (state.moveCount === 0 || state.over) newGame(); else ask('처음부터 다시 할까요?', newGame);
+  });
+  $('drawBtn').addEventListener('click', () => { if (!state.over) ask('무승부로 끝낼까요?', showDraw); });
+  $('rulesBtn').addEventListener('click', () => show('intro'));
+  $('againBtn').addEventListener('click', newGame);
+  $('homeBtn').addEventListener('click', () => { $('overlay').classList.remove('show'); show('intro'); });
+
+  buildBoard();
+</script>
+</body>
+</html>
