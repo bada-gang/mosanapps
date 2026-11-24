@@ -155,7 +155,6 @@
   q.addEventListener("input", render);
 
   function card(a) {
-    const external = /^https?:\/\//.test(a.url || "");
     const tags = (a.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join("");
     const inner = `
       <div class="head">
@@ -164,7 +163,7 @@
       </div>
       <p>${esc(a.desc)}</p>
       <div class="foot"><div class="tags">${tags}</div><span class="go">열기 →</span></div>`;
-    return `<a class="card" href="${esc(a.url)}" ${external ? 'target="_blank" rel="noopener"' : ""}>${inner}</a>`;
+    return `<a class="card" href="${esc(a.url)}" target="_blank" rel="noopener">${inner}</a>`;
   }
 
   function render() {
