@@ -41,8 +41,14 @@
   .admin-link svg { width: 16px; height: 16px; }
 
   /* 히어로 */
-  .hero { display: grid; grid-template-columns: 1fr 1fr; min-height: 560px; background: #fefcfd; border-bottom: 1px solid var(--line); }
-  .hero .art { background: url('assets/hero-square.jpg') center / cover no-repeat; }
+  .hero { background: #fefcfd; border-bottom: 1px solid var(--line); }
+  .hero .hero-in { display: grid; grid-template-columns: 1fr 1fr; max-width: 1200px; margin: 0 auto; }
+  /* 그림 칸을 정사각형으로 고정해 어떤 화면 폭에서도 그림이 잘리지 않게 함 */
+  .hero .art { aspect-ratio: 1 / 1; background: url('assets/hero-square.jpg') center / cover no-repeat; }
+  @media (min-width: 1201px) {
+    /* 큰 화면에서 그림 왼쪽 끝이 배경과 자연스럽게 이어지도록 */
+    .hero .art { -webkit-mask-image: linear-gradient(to right, transparent 0, #000 9%); mask-image: linear-gradient(to right, transparent 0, #000 9%); }
+  }
   .hero .text { align-self: center; max-width: 580px; padding: 48px 40px 48px 56px; }
   .hero .eyebrow { display: inline-block; font-size: 13px; font-weight: 700; color: var(--primary); background: var(--primary-soft); padding: 6px 12px; border-radius: 999px; }
   .hero h1 { margin: 14px 0 10px; font-size: clamp(30px, 4.4vw, 46px); line-height: 1.2; letter-spacing: -.03em; font-weight: 800; }
@@ -75,13 +81,15 @@
   .tag { font-size: 12px; font-weight: 600; color: #3b4a63; background: #f0f3f8; padding: 4px 9px; border-radius: 8px; }
   .go { flex: none; display: inline-flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 700; color: var(--primary); }
   .empty { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 48px 0; }
+  /* 전체 보기에서 지난 자료 앞에 넣는 구분선 */
+  .divider { grid-column: 1 / -1; height: 1px; margin: 16px 0; background: var(--line); }
+  .card.archived { background: #fbfcfe; box-shadow: none; }
 
   footer { border-top: 1px solid var(--line); background: var(--surface); color: var(--muted); font-size: 14px; }
   footer .wrap { padding-top: 24px; padding-bottom: 32px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
 
   @media (max-width: 760px) {
-    .hero { grid-template-columns: 1fr; min-height: 0; }
-    .hero .art { height: auto; aspect-ratio: 1 / 1; }
+    .hero .hero-in { grid-template-columns: 1fr; }
     .hero .text { padding: 24px 20px 32px; }
     .grid { --cols: repeat(auto-fill, minmax(240px, 1fr)) !important; }
   }
@@ -97,11 +105,13 @@
   </header>
 
   <section class="hero">
-    <div class="art" role="img" aria-label="작은 학교에서 넓은 세상을 바라보는 아이들 그림"></div>
-    <div class="text">
-      <span class="eyebrow" id="eyebrow"></span>
-      <h1 id="heroTitle"></h1>
-      <p id="heroText"></p>
+    <div class="hero-in">
+      <div class="art" role="img" aria-label="작은 학교에서 넓은 세상을 바라보는 아이들 그림"></div>
+      <div class="text">
+        <span class="eyebrow" id="eyebrow"></span>
+        <h1 id="heroTitle"></h1>
+        <p id="heroText"></p>
+      </div>
     </div>
   </section>
 
@@ -128,6 +138,8 @@
   const SITE = window.SITE || {};
   const APPS = (window.APPS || []).filter(a => a.url && a.visible !== false);
   const DEFAULT_ICON = "assets/app-default.png";
+  // 이 분류의 앱은 '전체' 보기에서 구분선 아래에 따로 표시 (apps.js의 SITE.archiveCategories로 바꿀 수 있음)
+  const ARCHIVE = SITE.archiveCategories || ["지난 홍보"];
   const grid = document.getElementById("grid");
   const chips = document.getElementById("chips");
   const q = document.getElementById("q");
@@ -171,7 +183,12 @@
     const list = APPS.filter(a =>
       (current === "전체" || a.category === current) &&
       (!k || [a.title, a.desc, a.category, ...(a.tags || [])].join(" ").toLowerCase().includes(k)));
-    grid.innerHTML = list.length ? list.map(card).join("") : `<div class="empty">찾는 앱이 없어요. 다른 검색어를 입력해 보세요.</div>`;
+    if (!list.length) { grid.innerHTML = `<div class="empty">찾는 앱이 없어요. 다른 검색어를 입력해 보세요.</div>`; return; }
+    // 전체 보기: 지금 쓰는 앱을 먼저, 더 이상 쓰지 않는 앱(ARCHIVE 분류)은 구분선 아래에 따로 모음
+    const old = current === "전체" ? list.filter(a => ARCHIVE.includes(a.category)) : [];
+    const now = list.filter(a => !old.includes(a));
+    grid.innerHTML = now.map(card).join("") +
+      (old.length ? `<div class="divider" aria-hidden="true"></div>` +old.map(a => card(a).replace('class="card"', 'class="card archived"')).join("") : "");
   }
   render();
 </script>
