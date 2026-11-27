@@ -27,6 +27,7 @@ window.APPS = [
   { "title": "호박고누 놀이", "desc": "호박 모양 판 위에서 말을 움직여 상대를 가두는 우리 전통 놀이예요.", "url": "apps/hobakgonu.html", "category": "놀이", "tags": ["전통 놀이", "2인"], "icon": "assets/icons/hobakgonu.png", "visible": true },
   { "title": "숲속 나 찾기 (1·2학년)", "desc": "나의 강점을 찾고 생활·학습·독서 습관을 스스로 점검해요.", "url": "https://letter0033-star.github.io/forest_12/", "category": "상담", "tags": ["1~2학년", "자기 점검"], "icon": "assets/icons/forest12.png", "visible": true },
   { "title": "숲속 나 찾기 (3~6학년)", "desc": "나의 강점을 찾고 생활·학습·독서 습관을 스스로 점검해요.", "url": "https://letter0033-star.github.io/forest/", "category": "상담", "tags": ["3~6학년", "자기 점검"], "icon": "assets/icons/forest.png", "visible": true },
+  { "title": "학습준비물 공유", "desc": "학년·특별실별로 함께 쓸 수 있는 학습 준비물을 찾아보고 대여·반납을 관리해요.", "url": "https://glittery-gaufre-a320ad.netlify.app/", "category": "업무", "tags": ["교사용", "대여·반납"], "icon": "assets/icons/supplies.png", "visible": true },
   { "title": "2027학년도 입학설명회", "desc": "2026. 11. 20.(금) 입학설명회와 부모교육 특강 안내 페이지예요.", "url": "https://letter0033-star.github.io/Information_Session/", "category": "지난 홍보", "tags": ["입학", "학부모"], "icon": "assets/icons/infosession.png", "visible": true },
   { "title": "모산뜰 가족 함께 책 읽기의 밤", "desc": "2026. 9. 11.(금) 만 5세 자녀 가족 초대 행사 안내 페이지예요.", "url": "https://letter0033-star.github.io/bookschool/", "category": "지난 홍보", "tags": ["독서", "가족 행사"], "icon": "assets/icons/bookschool.png", "visible": true }
 ];

@@ -175,7 +175,7 @@
   const SITE = window.SITE || {};
   if (typeof SITE.categoryOrder === "string") SITE.categoryOrder = SITE.categoryOrder.split(",").map(s => s.trim()).filter(Boolean);
   // 정렬: 분류 순서(SITE.categoryOrder) → 같은 분류 안에서는 가나다순. 목록에 없는 분류는 그 뒤에.
-  const CAT_ORDER = SITE.categoryOrder || ["학급", "수업", "놀이", "상담"];
+  const CAT_ORDER = SITE.categoryOrder || ["학급", "수업", "놀이", "상담", "업무"];
   const catRank = c => { const i = CAT_ORDER.indexOf(c); return i < 0 ? CAT_ORDER.length : i; };
   const APPS = (window.APPS || []).filter(a => a.url && a.visible !== false)
     .sort((a, b) => catRank(a.category) - catRank(b.category) ||
